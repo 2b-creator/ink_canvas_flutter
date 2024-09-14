@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (_, constraints) => Container(
           width: constraints.widthConstraints().maxWidth,
           height: constraints.heightConstraints().maxHeight,
-          color: Colors.black,
+          color: const Color.fromARGB(255, 3, 61, 13),
           child: DrawingCanvas(),
         ),
       ),
@@ -76,6 +76,8 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
   Offset? lastPoint;
   DateTime? lastTime;
   double lastStrokeWidth = 5.0; // 上一个点的线条宽度
+  double thickestStroke = 5.0;
+  double thinestStroke = 1.0;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -103,8 +105,13 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
 
           // 根据速度调整线条粗细，速度越快，线条越细；速度越慢，线条越粗
           double speed = distance / timeDelta; // 简单速度计算，单位为像素/毫秒
-          double targetStrokeWidth = max(1.0, min(10.0, 10.0 / (speed + 1)));
-          double smoothedStrokeWidth = lerpDouble(lastStrokeWidth, targetStrokeWidth, 0.3)!;
+          double targetStrokeWidth = max(
+              thinestStroke, min(thickestStroke, thickestStroke / (speed + 1)));
+          if (targetStrokeWidth.isNaN) {
+            targetStrokeWidth = thickestStroke;
+          }
+          double smoothedStrokeWidth =
+              lerpDouble(lastStrokeWidth, targetStrokeWidth, 0.3)!;
           points.add(currentPoint); // 添加当前点
           strokeWidths.add(smoothedStrokeWidth); // 添加当前点的线条粗细
 
